@@ -2,7 +2,7 @@
 
 /**
  * DateCompare Validation Extension
- * 
+ *
  * Validator to compare two dates, works similarly to CCompareValidator.
  *
  * @copyright © Digitick <www.digitick.net> 2012
@@ -17,7 +17,7 @@ class EDateCompare extends CValidator
 	public $compareAttribute;
 
 	/**
-	 * @var string the constant value to be compared with
+	 * @var string a constant date to be compared with
 	 */
 	public $compareValue;
 
@@ -28,9 +28,15 @@ class EDateCompare extends CValidator
 	public $allowEmpty = false;
 
 	/**
-	 * @var string the date format used to compare the attributes.
+	 * @var string the date format used to compare the values.
 	 */
 	public $dateFormat = 'Y-m-d H:i:s';
+
+	/**
+	 * @var boolean whether this validation rule should be skipped when there is already a validation
+	 * error for the current attribute. Defaults to true.
+	 */
+	public $skipOnError = true;
 
 	/**
 	 * @var string the operator for comparison. Defaults to '='.
@@ -64,7 +70,12 @@ class EDateCompare extends CValidator
 		}
 		$compareDate = DateTime::createFromFormat($this->dateFormat, $compareValue);
 		$date = DateTime::createFromFormat($this->dateFormat, $value);
-		$diff = (integer) $compareDate->diff($date)->format('%r%a%H%M%S');
+
+		// make sure we have two dates
+		if ($date instanceof DateTime && $compareDate instanceof DateTime)
+			$diff = ((integer) $date->diff($compareDate)->format('%r%a%H%M%S')) * -1;
+		else
+			return; // Perhaps not the best way of handling this. Possibly add an error message.
 
 		switch ($this->operator) {
 			case '=':
@@ -122,37 +133,39 @@ class EDateCompare extends CValidator
 		}
 
 		$message = $this->message;
+		$jsDate = 'new Date(value.replace(" ", "T")).getTime()';
+
 		switch ($this->operator) {
 			case '=':
 			case '==':
 				if ($message === null)
 					$message = Yii::t('yii', '{attribute} must be repeated exactly.');
-				$condition = 'new Date(value.replace(" ", "T")).getTime()!=' . $compareValue;
+				$condition = "{$jsDate}!={$compareValue}";
 				break;
 			case '!=':
 				if ($message === null)
 					$message = Yii::t('yii', '{attribute} must not be equal to "{compareValue}".');
-				$condition = 'new Date(value.replace(" ", "T")).getTime()==' . $compareValue;
+				$condition = "{$jsDate}=={$compareValue}";
 				break;
 			case '>':
 				if ($message === null)
 					$message = Yii::t('yii', '{attribute} must be greater than "{compareValue}".');
-				$condition = 'new Date(value.replace(" ", "T")).getTime()<=' . $compareValue . '';
+				$condition = "{$jsDate}<={$compareValue}";
 				break;
 			case '>=':
 				if ($message === null)
 					$message = Yii::t('yii', '{attribute} must be greater than or equal to "{compareValue}".');
-				$condition = 'new Date(value.replace(" ", "T")).getTime()<' . $compareValue . '';
+				$condition = "{$jsDate}<{$compareValue}";
 				break;
 			case '<':
 				if ($message === null)
 					$message = Yii::t('yii', '{attribute} must be less than "{compareValue}".');
-				$condition = 'new Date(value.replace(" ", "T")).getTime()>=' . $compareValue . '';
+				$condition = "{$jsDate}>={$compareValue}";
 				break;
 			case '<=':
 				if ($message === null)
 					$message = Yii::t('yii', '{attribute} must be less than or equal to "{compareValue}".');
-				$condition = 'new Date(value.replace(" ", "T")).getTime()>' . $compareValue . '';
+				$condition = "{$jsDate}>{$compareValue}";
 				break;
 			default:
 				throw new CException(Yii::t('yii', 'Invalid operator "{operator}".', array('{operator}' => $this->operator)));
