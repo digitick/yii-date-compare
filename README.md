@@ -53,4 +53,5 @@ The extension doesn't check if a date is correctly formatted (use the built in "
 
 
 ##Resources
- * [GitHub](https://github.com/digitick/yii-date-compare)
+ * [GitHub Repo](https://github.com/digitick/yii-date-compare)
+ * [Yii Extension Page](http://www.yiiframework.com/extension/date-compare)
