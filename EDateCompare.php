@@ -73,7 +73,7 @@ class EDateCompare extends CValidator
 
 		// make sure we have two dates
 		if ($date instanceof DateTime && $compareDate instanceof DateTime)
-			$diff = ((integer) $date->diff($compareDate)->format('%r%a%H%M%S')) * -1;
+			$diff = ((integer) $date->diff($compareDate)->format('%r%a%H%I%S')) * -1;
 		else
 			return; // Perhaps not the best way of handling this. Possibly add an error message.
 
