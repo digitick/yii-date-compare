@@ -61,6 +61,9 @@ class EDateCompare extends CValidator
 			return;
 		}
 
+                if(!$this->dateFormat)
+                    $this->dateFormat = Yii::app()->locale->getDateFormat('short');
+                    
 		if ($this->compareValue !== null) {
 			$compareTo = $compareValue = $this->compareValue;
 		}
@@ -69,16 +72,16 @@ class EDateCompare extends CValidator
 			$compareValue = $object->$compareAttribute;
 			$compareTo = $object->getAttributeLabel($compareAttribute);
 		}
-		$compareDate = DateTime::createFromFormat($this->dateFormat, $compareValue);
-		$date = DateTime::createFromFormat($this->dateFormat, $value);
 
-		// make sure we have two dates
-		if ($date instanceof DateTime && $compareDate instanceof DateTime)
-			$diff = ((integer) $date->diff($compareDate)->format('%r%a%H%I%S')) * -1;
-		else
-			return; // Perhaps not the best way of handling this. Possibly add an error message.
+                $compareDate=CDateTimeParser::parse($compareValue,$this->dateFormat);
+                $date=CDateTimeParser::parse($value,$this->dateFormat);
+                 
+                if( $compareDate === false || $date === false)
+                    throw new CException('Failled parsing date(s). You should validate formats (attribute, compared attribute, compared value, format) prior to compare values.');
 
-		switch ($this->operator) {
+                $diff = $date-$compareDate;
+
+                switch ($this->operator) {
 			case '=':
 			case '==':
 				if ($diff != 0) {
