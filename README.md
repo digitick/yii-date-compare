@@ -13,7 +13,7 @@ Extract to your extensions folder.
 
 Alternatively, you can check out from GitHub right in your Git enabled project:
 ~~~
-$ git submodule add git@github.com:digitick/yii-date-compare.git extensions/date-compare
+$ git submodule add git@github.com:SebSept/yii-date-compare.git extensions/date-compare
 $ git submodule init
 $ git submodule update
 ~~~
@@ -38,20 +38,21 @@ public function rules()
         ),
         array('end',
             'ext.date-compare.EDateCompare',
-            'compareAttribute' => 'start',
+            'compareValue' => Yii::app()->locale->dateFormatter->format(Yii::app()->locale->getDateFormat('short'), time()+3600),
             'operator' => '>',
-            'message' => 'End date must be after begin date.'
+            'message' => 'End date must be at least one hour after now.'
         ),
     );
 }
 ~~~
 
 ##Limitations
-For now, the only supported format for Javascript validation is ISO format.
 
-The extension doesn't check if a date is correctly formatted (use the built in "date" validator).
+ * No javascript validation (use ajax instead)
+ * The extension doesn't check if a date is correctly formatted (use the built in "date" validator) but throws an exception in that case.
 
 
 ##Resources
- * [GitHub Repo](https://github.com/digitick/yii-date-compare)
- * [Yii Extension Page](http://www.yiiframework.com/extension/date-compare)
+ * [GitHub Repo](https://github.com/SebSept/yii-date-compare)
+ * [Original GitHub Repo](https://github.com/digitick/yii-date-compare)
+ * [Original Yii Extension Page](http://www.yiiframework.com/extension/date-compare)
