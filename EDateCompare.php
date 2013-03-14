@@ -5,9 +5,10 @@
  *
  * Validator to compare two dates, works similarly to CCompareValidator.
  *
- * @copyright © Digitick <www.digitick.net> 2012
+ * @copyright © Digitick <www.digitick.net> 2012 / Sébastien Monterisi
  * @license GNU Lesser General Public License v3.0
  * @author Ianaré Sévi
+ * @author Sebastien Monterisi <sebastienmonterisi@yahoo.fr>
  */
 class EDateCompare extends CValidator
 {
@@ -120,67 +121,5 @@ class EDateCompare extends CValidator
 		}
 	}
 
-	public function clientValidateAttribute($object, $attribute)
-	{
-		if ($this->compareValue !== null) {
-			$compareTo = $this->compareValue;
-			$compareValue = CJSON::encode($this->compareValue);
-		}
-		else {
-			$compareAttribute = $this->compareAttribute === null ? $attribute . '_repeat' : $this->compareAttribute;
-			$compareValue = "new Date(\$('#" . (CHtml::activeId($object, $compareAttribute)) . "').val().replace(' ', 'T')).getTime()";
-			$compareTo = $object->getAttributeLabel($compareAttribute);
-		}
-
-		$message = $this->message;
-		$jsDate = 'new Date(value.replace(" ", "T")).getTime()';
-
-		switch ($this->operator) {
-			case '=':
-			case '==':
-				if ($message === null)
-					$message = Yii::t('yii', '{attribute} must be repeated exactly.');
-				$condition = "{$jsDate}!={$compareValue}";
-				break;
-			case '!=':
-				if ($message === null)
-					$message = Yii::t('yii', '{attribute} must not be equal to "{compareValue}".');
-				$condition = "{$jsDate}=={$compareValue}";
-				break;
-			case '>':
-				if ($message === null)
-					$message = Yii::t('yii', '{attribute} must be greater than "{compareValue}".');
-				$condition = "{$jsDate}<={$compareValue}";
-				break;
-			case '>=':
-				if ($message === null)
-					$message = Yii::t('yii', '{attribute} must be greater than or equal to "{compareValue}".');
-				$condition = "{$jsDate}<{$compareValue}";
-				break;
-			case '<':
-				if ($message === null)
-					$message = Yii::t('yii', '{attribute} must be less than "{compareValue}".');
-				$condition = "{$jsDate}>={$compareValue}";
-				break;
-			case '<=':
-				if ($message === null)
-					$message = Yii::t('yii', '{attribute} must be less than or equal to "{compareValue}".');
-				$condition = "{$jsDate}>{$compareValue}";
-				break;
-			default:
-				throw new CException(Yii::t('yii', 'Invalid operator "{operator}".', array('{operator}' => $this->operator)));
-		}
-
-		$message = strtr($message, array(
-			'{attribute}' => $object->getAttributeLabel($attribute),
-			'{compareValue}' => $compareTo,
-				));
-
-		return "
-if(" . ($this->allowEmpty ? "$.trim(value)!='' && " : '') . $condition . ") {
-	messages.push(" . CJSON::encode($message) . ");
-}
-";
-	}
 
 }
